@@ -16,7 +16,7 @@ from matplotlib.lines import Line2D
 
 # user-defined parameter
 n_simulate_point = 100
-isolation_percentage = 0
+isolation_percentage = 70
 
 # ------------------------------------------------------------
 # set up initial
@@ -36,7 +36,7 @@ fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
 ax = fig.add_axes([0.15, 0.5, 0.8, 0.45])
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
-plt.title(f"Social distancing: {isolation_percentage}%")
+plt.title(f"{isolation_percentage}% social distancing", fontsize=10)
 plt.xticks([])
 plt.yticks([])
 
@@ -75,7 +75,7 @@ immune_counts, = immune_count.plot([], [], '.', color='lightgreen', ms=2)
 custom_lines = [Line2D([0], [0], color="dodgerblue", lw=2),
                 Line2D([0], [0], color="r", lw=2),
                 Line2D([0], [0], color="lightgreen", lw=2)]
-plt.legend(custom_lines, ['Healthy', 'Sick', 'Immune'], ncol=3, fontsize=10)
+plt.legend(custom_lines, ['Healthy', 'Sick', 'Immune'], ncol=3, fontsize=8)
 
 
 # death particles counts
@@ -86,7 +86,7 @@ plt.xlabel("Time")
 plt.ylabel("Number")
 death_counts, = death_count.plot([], [], '.', color='k', ms=2)
 custom_lines = [Line2D([0], [0], color="k", lw=2)]
-plt.legend(custom_lines, ['Dead'])
+plt.legend(custom_lines, ['Dead'], fontsize=8)
 
 
 # particles holds the locations of the particles
@@ -120,45 +120,48 @@ def init():
     return particles, particles_sick, healthy_counts, sick_counts, immune_counts, death_counts, hospital, rect
 
 
-def animate(n):
+def animate(i):
     """perform animation step"""
     global box, rect, dt, ax, fig
-    box.step(dt)
 
-    ms = int(fig.dpi * 2 * box.size * fig.get_figwidth()
-             / np.diff(ax.get_xbound())[0])
+    # run animation as long as there is one sick person
+    while len(box.sick_list) > 0:
 
-    # update pieces of the animation
-    rect.set_edgecolor('k')
-    particles.set_data(box.state[:, 0], box.state[:, 1])
-    particles.set_markersize(ms)
+        box.step(dt)
+        ms = int(fig.dpi * 2 * box.size * fig.get_figwidth()
+                 / np.diff(ax.get_xbound())[0])
 
-    particles_sick.set_data(box.state[box.sick_list, 0], box.state[box.sick_list, 1])
-    particles_sick.set_markersize(ms)
+        # update pieces of the animation
+        rect.set_edgecolor('k')
+        particles.set_data(box.state[:, 0], box.state[:, 1])
+        particles.set_markersize(ms)
 
-    particles_immune.set_data(box.state[box.immune_list, 0], box.state[box.immune_list, 1])
-    particles_immune.set_markersize(ms)
+        particles_sick.set_data(box.state[box.sick_list, 0], box.state[box.sick_list, 1])
+        particles_sick.set_markersize(ms)
 
-    particles_death.set_data(box.state[box.death_list, 0], box.state[box.death_list, 1])
-    particles_death.set_markersize(ms)
+        particles_immune.set_data(box.state[box.immune_list, 0], box.state[box.immune_list, 1])
+        particles_immune.set_markersize(ms)
 
-    hospital.set_data([0, 100], [30, 30])
-    healthy_counts.set_data(box.total_time, box.healthy_count)
-    sick_counts.set_data(box.total_time, box.sick_count)
-    immune_counts.set_data(box.total_time, box.immune_count)
-    sick_count.set_xlim(0, max(box.total_time) + 3)
-    sick_count.set_title(f"Healthy: {box.healthy_count[-1]}  Sick: {box.sick_count[-1]}  Recovered: {box.immune_count[-1]}", fontsize=9)
+        particles_death.set_data(box.state[box.death_list, 0], box.state[box.death_list, 1])
+        particles_death.set_markersize(ms)
 
-    death_counts.set_data(box.total_time, box.death_count)
-    death_count.set_xlim(0, max(box.total_time) + 3)
-    death_count.set_title(f"Dead: {box.death_count[-1]}", fontsize=9)
+        hospital.set_data([0, 100], [30, 30])
+        healthy_counts.set_data(box.total_time, box.healthy_count)
+        sick_counts.set_data(box.total_time, box.sick_count)
+        immune_counts.set_data(box.total_time, box.immune_count)
+        sick_count.set_xlim(0, max(box.total_time) + 3)
+        sick_count.set_title(f"Healthy: {box.healthy_count[-1]}  Sick: {box.sick_count[-1]}  Recovered: {box.immune_count[-1]}", fontsize=9)
 
-    return particles, particles_sick, sick_counts, particles_immune, \
-           immune_counts, particles_death, death_counts, healthy_counts, hospital, rect
+        death_counts.set_data(box.total_time, box.death_count)
+        death_count.set_xlim(0, max(box.total_time) + 3)
+        death_count.set_title(f"Dead: {box.death_count[-1]}", fontsize=9)
+
+        return particles, particles_sick, sick_counts, particles_immune, \
+               immune_counts, particles_death, death_counts, healthy_counts, hospital, rect
 
 
 ani = animation.FuncAnimation(fig, animate, frames=600,
-                              interval=10, blit=False, init_func=init)
+                              interval=10, blit=False, init_func=init, repeat=False)
 
-#ani.save(f'social_{isolation_percentage}.mov', fps=30)
+#ani.save(f"output_animation/social_distancing_{isolation_percentage}.mov", fps=30)
 plt.show()

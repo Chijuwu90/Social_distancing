@@ -1,11 +1,10 @@
 """
 Animation of Elastic collisions with Gravity
 
-author: Jake Vanderplas
-email: vanderplas@astro.washington.edu
-website: http://jakevdp.github.com
+author: Chi-Ju Wu
+email: chi.ju.wu90@gmail.com
+website: https://github.com/Chijuwu90/
 license: BSD
-Please feel free to use and modify this, but keep the above information. Thanks!
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -12,17 +12,19 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from pylab import rcParams
 from ParticleBox import ParticleBox
+from matplotlib.lines import Line2D
 
+# user-defined parameter
+n_simulate_point = 100
+isolation_percentage = 0
 
 # ------------------------------------------------------------
 # set up initial
 np.random.seed(42)
-n_simulate_point = 100
 init_state = -0.5 + np.random.random((n_simulate_point, 4))
 init_state[:, :2] *= 3.9
 
-perc = 0
-box = ParticleBox(init_state, size=0.015, quarantine_percentage=perc)
+box = ParticleBox(init_state, size=0.012, quarantine_percentage=isolation_percentage)
 dt = 1. / 10  # 30fps
 
 # ------------------------------------------------------------
@@ -34,7 +36,7 @@ fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
 ax = fig.add_axes([0.15, 0.5, 0.8, 0.45])
 ax.set_xlim(-2, 2)
 ax.set_ylim(-2, 2)
-plt.title(f"Social distancing: {perc}%")
+plt.title(f"Social distancing: {isolation_percentage}%")
 plt.xticks([])
 plt.yticks([])
 
@@ -46,8 +48,10 @@ hospital, = hospital.plot([], [], 'k-.')
 
 # sick particles counts
 sick_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
-sick_count.set_xlim(0, 100)
-sick_count.set_ylim(0, 100)
+
+repeat_length = 100
+sick_count.set_xlim([0, repeat_length])
+
 plt.ylabel("N")
 plt.xticks([])
 sick_counts, = sick_count.plot([], [], '.', color='r', ms=2)
@@ -55,34 +59,43 @@ sick_counts, = sick_count.plot([], [], '.', color='r', ms=2)
 # healthy particles counts
 healthy_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
 healthy_count.set_xlim(0, 100)
-healthy_count.set_ylim(0, 100)
+healthy_count.set_ylim(0, 120)
 plt.ylabel("N")
 plt.xticks([])
-healthy_counts, = healthy_count.plot([], [], '.', color='b', ms=2)
+healthy_counts, = healthy_count.plot([], [], '.', color='dodgerblue', ms=2)
 
 # immune particles counts
 immune_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
 immune_count.set_xlim(0, 100)
-immune_count.set_ylim(0, 100)
+immune_count.set_ylim(0, 120)
 plt.xticks([])
-plt.ylabel("N")
-immune_counts, = immune_count.plot([], [], '.', color='g', ms=2)
+plt.ylabel("Number")
+immune_counts, = immune_count.plot([], [], '.', color='lightgreen', ms=2)
+
+custom_lines = [Line2D([0], [0], color="dodgerblue", lw=2),
+                Line2D([0], [0], color="r", lw=2),
+                Line2D([0], [0], color="lightgreen", lw=2)]
+plt.legend(custom_lines, ['Healthy', 'Sick', 'Immune'], ncol=3, fontsize=10)
+
 
 # death particles counts
-death_count = fig.add_axes([0.15, 0.1, 0.8, 0.1])
+death_count = fig.add_axes([0.15, 0.08, 0.8, 0.1])
 death_count.set_xlim(0, 100)
-death_count.set_ylim(0, 20)
-plt.xlabel("∂t")
-plt.ylabel("N")
+death_count.set_ylim(0, 15)
+plt.xlabel("Time")
+plt.ylabel("Number")
 death_counts, = death_count.plot([], [], '.', color='k', ms=2)
+custom_lines = [Line2D([0], [0], color="k", lw=2)]
+plt.legend(custom_lines, ['Dead'])
+
 
 # particles holds the locations of the particles
-particles, = ax.plot([], [], 'o', color='b', ms=6)
+particles, = ax.plot([], [], 'o', color='dodgerblue', ms=6)
 
 # particles holds the locations of the particles
 particles_sick, = ax.plot([], [], 'o', color='r', ms=6)
 
-particles_immune, = ax.plot([], [], 'o', color='g', ms=6)
+particles_immune, = ax.plot([], [], 'o', color='lightgreen', ms=6)
 particles_death, = ax.plot([], [], 'o', color='k', ms=6)
 
 # rect is the box edge
@@ -107,7 +120,7 @@ def init():
     return particles, particles_sick, healthy_counts, sick_counts, immune_counts, death_counts, hospital, rect
 
 
-def animate(i):
+def animate(n):
     """perform animation step"""
     global box, rect, dt, ax, fig
     box.step(dt)
@@ -133,19 +146,19 @@ def animate(i):
     healthy_counts.set_data(box.total_time, box.healthy_count)
     sick_counts.set_data(box.total_time, box.sick_count)
     immune_counts.set_data(box.total_time, box.immune_count)
+    sick_count.set_xlim(0, max(box.total_time) + 3)
+    sick_count.set_title(f"Healthy: {box.healthy_count[-1]}  Sick: {box.sick_count[-1]}  Recovered: {box.immune_count[-1]}", fontsize=9)
+
     death_counts.set_data(box.total_time, box.death_count)
+    death_count.set_xlim(0, max(box.total_time) + 3)
+    death_count.set_title(f"Dead: {box.death_count[-1]}", fontsize=9)
+
     return particles, particles_sick, sick_counts, particles_immune, \
            immune_counts, particles_death, death_counts, healthy_counts, hospital, rect
 
 
 ani = animation.FuncAnimation(fig, animate, frames=600,
-                              interval=10, blit=True, init_func=init)
+                              interval=10, blit=False, init_func=init)
 
-# save the animation as an mp4.  This requires ffmpeg or mencoder to be
-# installed.  The extra_args ensure that the x264 codec is used, so that
-# the video can be embedded in html5.  You may need to adjust this for
-# your system: for more information, see
-# http://matplotlib.sourceforge.net/api/animation_api.html
-
-#ani.save(f'social_{perc}.mov', fps=30)
+#ani.save(f'social_{isolation_percentage}.mov', fps=30)
 plt.show()

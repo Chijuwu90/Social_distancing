@@ -47,7 +47,7 @@ class ParticleBox:
         self.death_list = []
         self.death_count = [0]
         self.total_time = [0.0]
-        self.time_elapsed_factor = 1.2
+        self.time_elapsed_factor = 2
         if quarantine_percentage == 0:
             self.quarantine_list = []
         else:

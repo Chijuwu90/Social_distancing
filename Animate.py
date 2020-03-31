@@ -114,11 +114,17 @@ class Animate:
                              ec='none', lw=2, fc='none')
         ax.add_patch(rect)
 
-        while len(box.sick_list) > 0:
-            ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
-                                          interval=10, blit=False, init_func=self.ani_setup, repeat=False)
-            ani.save(f"output_animation/social_distancing_{isolation_percentage}.mov", fps=30)
-            plt.show()
+        if self.save == "True":
+            while len(box.sick_list) > 0:
+                ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
+                                              interval=10, blit=False, init_func=self.ani_setup, repeat=False)
+                ani.save(f"output_animation/social_distancing_{isolation_percentage}.mov", fps=30)
+                plt.show()
+        else:
+            while len(box.sick_list) > 0:
+                ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
+                                              interval=10, blit=False, init_func=self.ani_setup, repeat=False)
+                plt.show()
 
 
 

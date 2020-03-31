@@ -48,10 +48,10 @@ class ParticleBox:
         self.death_count = [0]
         self.total_time = [0.0]
         self.time_elapsed_factor = 2
-        if quarantine_percentage == 0:
+        if int(quarantine_percentage) == 0:
             self.quarantine_list = []
         else:
-            self.quarantine_list = random.sample(range(1, 100), quarantine_percentage)
+            self.quarantine_list = random.sample(range(1, 100), int(quarantine_percentage))
 
     def step(self, dt):
 

@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 from pylab import rcParams
 from matplotlib.lines import Line2D
 
-from ParticleBox import ParticleBox
+from src.ParticleBox import ParticleBox
 
 
 class Animate:
@@ -28,7 +28,7 @@ class Animate:
 
         # user-defined parameter
         n_simulate_point = 100
-        isolation_percentage = self.level
+        print(self.level)
 
         # ------------------------------------------------------------
         # set up initial
@@ -36,7 +36,7 @@ class Animate:
         init_state = -0.5 + np.random.random((n_simulate_point, 4))
         init_state[:, :2] *= 3.9
 
-        box = ParticleBox(init_state, size=0.025, quarantine_percentage=isolation_percentage, release=self.release)
+        box = ParticleBox(init_state, size=0.025, quarantine_percentage=self.level, release=self.release)
         dt = 1. / 10  # 30fps
 
         # ------------------------------------------------------------
@@ -48,7 +48,7 @@ class Animate:
         ax = fig.add_axes([0.15, 0.5, 0.8, 0.45])
         ax.set_xlim(-2, 2)
         ax.set_ylim(-2, 2)
-        plt.title(f"{isolation_percentage}% social distancing", fontsize=10)
+        plt.title(f"{self.level}% social distancing", fontsize=10)
         plt.xticks([])
         plt.yticks([])
 

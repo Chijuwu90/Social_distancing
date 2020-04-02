@@ -21,7 +21,7 @@ class ProcessRunner:
         self.release = args.release
 
     def run(self):
-        module = importlib.import_module("Animate")
+        module = importlib.import_module("src.Animate")
         process_class = getattr(module, "Animate")
         process_class(self.level, self.save, self.release).run()
 

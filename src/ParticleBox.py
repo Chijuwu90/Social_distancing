@@ -12,6 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 import random
 import time
 
+
 class ParticleBox:
     """Orbits class
 

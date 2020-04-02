@@ -10,18 +10,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from pylab import rcParams
-from ParticleBox import ParticleBox
 from matplotlib.lines import Line2D
+
+from ParticleBox import ParticleBox
 
 
 class Animate:
 
-    def __init__(self, level=0, save=False):
-        self.save = save
+    def __init__(self, level=0, save="False", release="False"):
         self.level = level
+        self.save = bool(save)
+        self.release = bool(release)
 
     def run(self):
-
         global box, fig, dt, ax, rect, particles, particles_sick, healthy_counts, sick_counts, immune_counts, \
             death_counts, hospital, particles_immune, particles_death, sick_count, death_count
 
@@ -35,7 +36,7 @@ class Animate:
         init_state = -0.5 + np.random.random((n_simulate_point, 4))
         init_state[:, :2] *= 3.9
 
-        box = ParticleBox(init_state, size=0.012, quarantine_percentage=isolation_percentage)
+        box = ParticleBox(init_state, size=0.025, quarantine_percentage=isolation_percentage, release=self.release)
         dt = 1. / 10  # 30fps
 
         # ------------------------------------------------------------
@@ -114,19 +115,18 @@ class Animate:
                              ec='none', lw=2, fc='none')
         ax.add_patch(rect)
 
-        if self.save == "True":
+        if self.save:
             while len(box.sick_list) > 0:
                 ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
                                               interval=10, blit=False, init_func=self.ani_setup, repeat=False)
+
                 ani.save(f"output_animation/social_distancing_{isolation_percentage}.mov", fps=30)
                 plt.show()
         else:
             while len(box.sick_list) > 0:
-                ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
+                ani = animation.FuncAnimation(fig, Animate.animation,
                                               interval=10, blit=False, init_func=self.ani_setup, repeat=False)
                 plt.show()
-
-
 
     def ani_setup(self):
         """initialize animation"""

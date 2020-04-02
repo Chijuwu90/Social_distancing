@@ -10,7 +10,7 @@ Please feel free to use and modify this, but keep the above information. Thanks!
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 import random
-
+import time
 
 class ParticleBox:
     """Orbits class
@@ -23,7 +23,7 @@ class ParticleBox:
     bounds is the size of the box: [xmin, xmax, ymin, ymax]
     """
 
-    def __init__(self, init_state=None, bounds=None, size=0.01, m=0.05, quarantine_percentage=0):
+    def __init__(self, init_state=None, bounds=None, size=0.01, m=0.05, quarantine_percentage=0, release=""):
         if bounds is None:
             bounds = [-2, 2, -2, 2]
         if init_state is None:
@@ -48,6 +48,8 @@ class ParticleBox:
         self.death_count = [0]
         self.total_time = [0.0]
         self.time_elapsed_factor = 2
+        self.start_declining_time = None
+        self.release = release
         if int(quarantine_percentage) == 0:
             self.quarantine_list = []
         else:
@@ -168,9 +170,29 @@ class ParticleBox:
         self.total_time.append(self.time_elapsed * self.time_elapsed_factor)
 
     def get_movable_dots(self):
-        not_moving_dots = self.death_list + self.quarantine_list
-        moving_dots = list(set(np.arange(100)) - set(not_moving_dots))
-        return moving_dots
+
+        if self.release:
+            moving_dots = []
+            n = 20
+            if (len(self.sick_list) > n) & (self.start_declining_time is None):
+                latest_ten_sick__avg_n = np.mean(self.sick_count[len(self.sick_count) - n:])
+                previous_ten_sick__avg_n = np.mean(self.sick_count[len(self.sick_count) - 2*n:len(self.sick_count) - n])
+                # start to show declining
+                if (latest_ten_sick__avg_n < previous_ten_sick__avg_n) \
+                        & (latest_ten_sick__avg_n <= max(self.sick_count)*(2./3)):
+                    self.start_declining_time = self.time_elapsed
+
+            if self.start_declining_time is None:
+                not_moving_dots = self.death_list + self.quarantine_list
+                moving_dots = list(set(np.arange(100)) - set(not_moving_dots))
+            elif self.time_elapsed > self.start_declining_time:
+                not_moving_dots = self.death_list
+                moving_dots = list(set(np.arange(100)) - set(not_moving_dots))
+            return moving_dots
+        else:
+            not_moving_dots = self.death_list + self.quarantine_list
+            moving_dots = list(set(np.arange(100)) - set(not_moving_dots))
+            return moving_dots
 
     def random_death(self):
         if len(self.sick_list) >= 10:

@@ -11,7 +11,7 @@ Arguments: \
  --release: If the infected curve starts to show signs of flattening or decreasing, all people are allowed to move freely.  \
  --save: Save the animation in directory.
  
-```python
+```
 python run.py --level N --release True/False --save True/False
 ```
 

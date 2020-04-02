@@ -28,7 +28,6 @@ class Animate:
 
         # user-defined parameter
         n_simulate_point = 100
-        print(self.level)
 
         # ------------------------------------------------------------
         # set up initial
@@ -42,24 +41,25 @@ class Animate:
         # ------------------------------------------------------------
         # set up figure and animation
         rcParams["figure.figsize"] = 5, 8
+        plt.rcParams['axes.labelweight'] = 'bold'
         fig = plt.figure()
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
 
-        ax = fig.add_axes([0.15, 0.5, 0.8, 0.45])
+        ax = fig.add_axes([0.12, 0.5, 0.8, 0.45])
         ax.set_xlim(-2, 2)
         ax.set_ylim(-2, 2)
-        plt.title(f"{self.level}% social distancing", fontsize=10)
+        plt.title(f"{self.level}% social distancing", fontsize=10, fontweight='bold')
         plt.xticks([])
         plt.yticks([])
 
         # hospital capacity
-        hospital = fig.add_axes([0.15, 0.22, 0.8, 0.25])
+        hospital = fig.add_axes([0.12, 0.22, 0.8, 0.25])
         hospital.set_xlim(0, 100)
         hospital.set_ylim(0, 100)
         hospital, = hospital.plot([], [], 'plum')
 
         # sick particles counts
-        sick_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
+        sick_count = fig.add_axes([0.12, 0.22, 0.8, 0.25])
         ticks = [0, 20, 40, 60, 80, 100]
         sick_count.set_yticks(ticks)
 
@@ -68,7 +68,7 @@ class Animate:
         sick_counts, = sick_count.plot([], [], '.', color='r', ms=2)
 
         # healthy particles counts
-        healthy_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
+        healthy_count = fig.add_axes([0.12, 0.22, 0.8, 0.25])
         healthy_count.set_xlim(0, 100)
         healthy_count.set_ylim(0, 120)
         plt.ylabel("N")
@@ -76,7 +76,7 @@ class Animate:
         healthy_counts, = healthy_count.plot([], [], '.', color='dodgerblue', ms=2)
 
         # immune particles counts
-        immune_count = fig.add_axes([0.15, 0.22, 0.8, 0.25])
+        immune_count = fig.add_axes([0.12, 0.22, 0.8, 0.25])
         immune_count.set_xlim(0, 100)
         immune_count.set_ylim(0, 120)
         plt.xticks([])
@@ -87,10 +87,10 @@ class Animate:
                         Line2D([0], [0], color="r", lw=2),
                         Line2D([0], [0], color="lightgreen", lw=2),
                         Line2D([0], [0], color="plum", lw=2)]
-        plt.legend(custom_lines, ['Healthy', 'Sick', 'Immune', 'Hospital Capacity'], ncol=4, fontsize=7)
+        plt.legend(custom_lines, ['Healthy', 'Sick', 'Immune', 'Hospital Capacity'], ncol=4, fontsize=7.5)
 
         # death particles counts
-        death_count = fig.add_axes([0.15, 0.08, 0.8, 0.1])
+        death_count = fig.add_axes([0.12, 0.08, 0.8, 0.1])
         death_count.set_xlim(0, 100)
         death_count.set_ylim(0, 15)
         plt.xlabel("Time")
@@ -120,7 +120,7 @@ class Animate:
                 ani = animation.FuncAnimation(fig, Animate.animation, frames=600,
                                               interval=10, blit=False, init_func=self.ani_setup, repeat=False)
 
-                ani.save(f"output_animation/social_distancing_{isolation_percentage}.mov", fps=30)
+                ani.save(f"output_animation/social_distancing_{self.level}.mov", fps=30)
                 plt.show()
         else:
             while len(box.sick_list) > 0:
@@ -170,7 +170,7 @@ class Animate:
         sick_counts.set_data(box.total_time, box.sick_count)
         immune_counts.set_data(box.total_time, box.immune_count)
         sick_count.set_xlim(0, max(box.total_time) + 3)
-        sick_count.set_title(f"Healthy: {box.healthy_count[-1]}  Sick: {box.sick_count[-1]}  Recovered: {box.immune_count[-1]} Dead: {box.death_count[-1]}", fontsize=9)
+        sick_count.set_title(f"Healthy: {box.healthy_count[-1]}  Sick: {box.sick_count[-1]}  Recovered: {box.immune_count[-1]} Dead: {box.death_count[-1]}", fontsize=9, fontweight='bold')
 
         death_counts.set_data(box.total_time, box.death_count)
         death_count.set_xlim(0, max(box.total_time) + 3)
